@@ -38,14 +38,6 @@ Ready to embark on your journey? Follow these steps:
 4. Open Visual Studio Code and launch the frontend code.
 5. Head to your browser and navigate to `localhost:3000`.
 
-## Join the Adventure! 🚀
-
-We're always looking for fellow explorers to join our quest! If you're passionate about travel and technology, we'd love to have you on board. Fork the repository and let's make magic together! 🌟
-
-## License 📝
-
-This project is licensed under the MIT License.
-
 ## Get in Touch 📧
 
 Questions, suggestions, or just want to share your latest travel tale? Drop us a line at einstein26092001@email.com. Adventure awaits!
