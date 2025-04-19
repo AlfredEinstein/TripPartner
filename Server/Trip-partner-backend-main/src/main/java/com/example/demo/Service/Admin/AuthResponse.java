@@ -12,8 +12,9 @@ public class AuthResponse {
 	public String getMessage() {
 		return message;
 	}
-	public void setMessage(String message) {
+	public AuthResponse setMessage(String message) {
 		this.message = message;
+		return null;
 	}
 	public AuthResponse(String token, String message) {
 		this.token = token;

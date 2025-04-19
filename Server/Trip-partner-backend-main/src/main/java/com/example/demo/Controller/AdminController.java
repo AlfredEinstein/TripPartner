@@ -38,7 +38,7 @@ public class AdminController {
     public AuthResponse signin(@RequestBody LoginRequest LoginRequest) {
         return adminService.sigin(LoginRequest);
     }
-    @PostMapping
+    @PostMapping("/addAdmin")
     public AuthResponse addUser(@RequestBody User newUser) throws Exception {
         return adminService.addUser(newUser);
     }

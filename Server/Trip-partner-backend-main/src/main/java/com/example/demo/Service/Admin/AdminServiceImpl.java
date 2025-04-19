@@ -13,12 +13,15 @@ import com.example.demo.Service.UserServices.UserService;
 import com.example.demo.config.CustomUserDetailsService;
 import com.example.demo.config.JwtProvider;
 import jakarta.mail.MessagingException;
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -261,18 +264,23 @@ public class AdminServiceImpl implements AdminService{
     @Override
     public AuthResponse addUser(User newUser) throws Exception {
         Optional<User> user = userRepository.findByUserEmail(newUser.getUserEmail());
+        String token = "";
+        AuthResponse res= null;
         if (user.isPresent()) {
             throw new Exception("User is already exit");
         } else {
-            String temp = passwordEncoder.encode(newUser.getUserPassword());
-            newUser.setUserPassword(temp);
             newUser.setRole(Role.Admin_Role);
-            User saveduser = userRepository.save(newUser);
-            Authentication authentication= new UsernamePasswordAuthenticationToken(saveduser.getUserEmail(), saveduser.getUserPassword());
-            String token = JwtProvider.generateToken(authentication);
-
-            AuthResponse res=new AuthResponse(token, "Register Success");
-            return res;
+            ResponseEntity<?> response = userService.addUser(newUser);
+            if(response.getStatusCode() == HttpStatus.CREATED){
+                User addedUser=userService.getByUserEmail(newUser.getUserEmail());
+                Authentication authentication= new UsernamePasswordAuthenticationToken(addedUser.getUserEmail(), addedUser.getUserPassword());
+                if(!passwordEncoder.matches(newUser.getUserPassword(), addedUser.getUserPassword())){
+                    System.out.println("password not matched");
+                }
+                token=JwtProvider.generateToken(authentication);
+                res=new AuthResponse(token, "Admin Registration Success");
+            }
+            return res.getToken().isEmpty()?res.setMessage("Admin Registration Failed"):res;
         }
 
     }
@@ -284,26 +292,25 @@ public class AdminServiceImpl implements AdminService{
         return user.orElse(null);
     }
     @Override
-    public AuthResponse sigin(LoginRequest LoginRequest ) {
+    public AuthResponse sigin(LoginRequest LoginRequest ) throws UsernameNotFoundException {
         Authentication authentication = authenticate(LoginRequest.getEmail(), LoginRequest.getPassword());
         String token = JwtProvider.generateToken(authentication);
         AuthResponse res=new AuthResponse(token, "Login Sucess");
         return res;
     }
 
-    private Authentication authenticate(String email, String password) {
+    private Authentication authenticate(String email, String password)throws UsernameNotFoundException {
         UserDetails userDetails = customerUserDetails.loadUserByUsername(email);
 
-        if(userDetails==null ) {
-            throw new BadCredentialsException("Invalid Username");
-        }
-        boolean role=userDetails.getAuthorities().stream().anyMatch(auth->auth.getAuthority().equals("User_Role"));
-        if (role){
-            throw new UnAuthorizedAccessException("User is not Authorized to access this page.");
-        }
-        if(!passwordEncoder.matches(password,  userDetails.getPassword())) {
-            throw new BadCredentialsException("password not match");
-        }
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            boolean role=userDetails.getAuthorities().stream().anyMatch(auth->auth.getAuthority().equals("User_Role"));
+            if (role){
+                System.out.println("user");
+                throw new UnAuthorizedAccessException("User is not Authorized to access this page.");
+            }
+            if(!passwordEncoder.matches(password,  userDetails.getPassword())) {
+                System.out.println("password not match");
+                throw new BadCredentialsException("password not match");
+            }
+            return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

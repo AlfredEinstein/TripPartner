@@ -38,7 +38,7 @@ public class SecurityConfiguration {
     	http.sessionManagement(management->management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
         .authorizeHttpRequests(Authorize -> Authorize
-				.requestMatchers("/Admin","/Admin/signin").permitAll()
+				.requestMatchers("/Admin","/Admin/signin","/Admin/addAdmin").permitAll()
         		.requestMatchers("/Admin/**").authenticated()
                 .anyRequest().permitAll())
         .addFilterBefore(new jwtValidator(), BasicAuthenticationFilter.class)

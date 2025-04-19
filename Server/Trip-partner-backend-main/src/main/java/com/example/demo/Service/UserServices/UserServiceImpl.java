@@ -316,6 +316,7 @@ public class UserServiceImpl implements UserService {
 		} else {
 			newUser.setUserPassword(passwordEncoder.encode(newUser.getUserPassword()));
 			userRepo.save(newUser);
+
 			UserImages userImages=new UserImages();
 			userImages.setUserId(newUser.getUserId());
 			userImageRepository.save(userImages);

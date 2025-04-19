@@ -24,15 +24,12 @@ public class jwtValidator extends OncePerRequestFilter {
 			try {
 				String email= JwtProvider.getEmailFromJwtToken(jwt);
 				List<GrantedAuthority>authorities=new ArrayList<>();
-
 				Authentication authentication=new UsernamePasswordAuthenticationToken(email,null,authorities);
 				SecurityContextHolder.getContext().setAuthentication(authentication);}
 			catch(Exception e) {
 				throw new BadCredentialsException("invalid token");
 
 			}
-
-
 		}
 		filterChain.doFilter(request, response);
 	}
