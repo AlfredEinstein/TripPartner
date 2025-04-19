@@ -33,7 +33,7 @@ export const registerUserAction = (registerData) => async (dispatch) => {
     dispatch({ type: LOGIN_REQUEST });
     console.log(registerData);
     try {
-        const data  = await axios.post(`${API_BASE_URL}/Admin`, registerData);
+        const data  = await axios.post(`${API_BASE_URL}/Admin/addAdmin`, registerData);
         console.log(data.jwt);
         if (data.token) {
             localStorage.setItem("jwt", data.token);
